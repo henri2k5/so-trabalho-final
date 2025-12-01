@@ -309,7 +309,7 @@ class Kernel:
         print(f"[Kernel] (Equipe 3) AINDA NÃO IMPLEMENTADO: Receber mensagem para {pid}.")
         pass
 
-    # --- Equipe 4: Criação e Encerramento de Threads ---
+        # --- Equipe 4: Criação e Encerramento de Threads ---
     def sys_create_thread(self, pid, funcao_inicio):
         """
         Cria uma nova thread dentro de um processo existente.
@@ -322,6 +322,21 @@ class Kernel:
         # 
         print(f"[Kernel] (Equipe 4) AINDA NÃO IMPLEMENTADO: Criar thread para o processo {pid}.")
         pass
+        if pid not in self.tabela_de_processos:
+            print(f"[Kernel] Erro: Processo {pid} nao encontrado")
+            return -1
+        
+        processo_pai = self.tabela_de_processos[pid]
+
+        novo_tid = len(processo_pai.threads)
+
+        nova_thread = TCB(tid=novo_tid,
+                          pid_pai=pid,
+                          estado=EstadoProcesso.PRONTO,
+                          contador_de_programa=funcao_inicio
+                          )
+        processo_pai.threads.append(nova_thread)
+
 
     # --- Equipe 5: Escalonamento de Processos (Round-Robin) ---
     def schedule_rr(self, processo_saindo, colocar_de_volta_na_fila):
