@@ -351,28 +351,34 @@ class Kernel:
         # A EQUIPE 5 DEVE IMPLEMENTAR ESTA FUNÇÃO
         # 
         
-        # Lógica de placeholder para o sistema rodar:
-        if self.quantum_restante <= 0 or (processo_saindo and processo_saindo.estado != EstadoProcesso.EXECUCAO):
-            # O quantum acabou ou o processo não está mais em execução (bloqueou/terminou)
-            
-            # Se o processo que estava saindo ainda deve voltar para a fila
-            if colocar_de_volta_na_fila:
-                print(f"[Kernel] (Equipe 5) Quantum expirou para PID {processo_saindo.pid}. Voltando para a fila.")
-                processo_saindo.estado = EstadoProcesso.PRONTO
-                self.fila_de_prontos.append(processo_saindo)
-            
-            # Tenta pegar o próximo processo da fila
-            if self.fila_de_prontos:
-                proximo = self.fila_de_prontos.popleft()
-                print(f"[Kernel] (Equipe 5) Escalonador: Trocando para PID {proximo.pid}")
-                return proximo
-            else:
-                # Ninguém na fila, CPU fica ociosa
-                print(f"[Kernel] (Equipe 5) Escalonador: Fila de prontos vazia. CPU ociosa.")
-                return None 
+       # Equipe5: Escalonaor Round Robin
+def schedule_rr(self, processo_saindo, colocar_de_volta_na_fila):
+
+        tempo_acabou = self.quantum_restante <= 0
+        processo_parou = (processo_saindo and processo_saindo.estado != EstadoProcesso.EXECUCAO)
+        cpu_ociosa = (processo_saindo is None)
+
+        if not tempo_acabou and not processo_parou and not cpu_ociosa:
+            return None
+
+        if colocar_de_volta_na_fila and processo_saindo:
+            print(f"[SCHEDULER] Quantum expirou para PID {processo_saindo.pid}. Requisitando troca.")
+            processo_saindo.estado = EstadoProcesso.PRONTO
+            self.fila_de_prontos.append(processo_saindo)
+
+        if self.fila_de_prontos:
+            proximo = self.fila_de_prontos.popleft()
+            print(f"--- [SCHEDULER] Context Switch: PID {proximo.pid} assumindo CPU ---") 
+            return proximo
+
+        if processo_saindo and not colocar_de_volta_na_fila:
+            self.rodando = False
+            return None
+
+        if colocar_de_volta_na_fila:
+            return self.fila_de_prontos.popleft()
         
-        # Se não for nenhuma das condições acima, o processo atual continua executando
-        return processo_saindo 
+        return None
         
     # --- Equipe 6: Alocação e Liberação de Memória Física ---
     def sys_malloc(self, tamanho):
