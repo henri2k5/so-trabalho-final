@@ -475,21 +475,40 @@ class Kernel:
         # 
         print(f"[Kernel] (Equipe 9) AINDA NÃO IMPLEMENTADO: Interpretar comando '{comando_str}'.")
         pass
-        
-    # --- Equipe 10: Listagem de Processos (htop) ---
+
+        # --- Equipe 10: Listagem de Processos (htop) ---
     def sys_htop(self):
         """
         Gera uma string formatada com a lista de todos os processos e seus estados.
-        - Deve varrer a tabela de processos.
-        - Para cada processo, coletar PID, nome, estado, etc.
-        - Formatar tudo em uma única string legível, como uma tabela.
-        - Retorna a string. Não deve usar print().
         """
-        # 
-        # A EQUIPE 10 DEVE IMPLEMENTAR ESTA FUNÇÃO
-        # 
         print("[Kernel] (Equipe 10) Gerando listagem de processos.")
-        pass
+
+        if not self.tabela_de_processos:
+            return "Nenhum processo ativo no sistema.\n"
+
+        # --- ESTATÍSTICAS ---
+        total = len(self.tabela_de_processos)
+        rodando = sum(1 for p in self.tabela_de_processos.values() if p.estado == EstadoProcesso.EXECUCAO)
+        prontos = sum(1 for p in self.tabela_de_processos.values() if p.estado == EstadoProcesso.PRONTO)
+        bloqueados = sum(1 for p in self.tabela_de_processos.values() if p.estado == EstadoProcesso.BLOQUEADO)
+
+        # Cabeçalho
+        saida = "\n" + "="*60 + "\n"
+        saida += f" MONITORAMENTO DO SISTEMA (HTOP) - EQUIPE 10 \n"
+        saida += f" Tarefas: {total} total, {rodando} rodando, {prontos} prontos, {bloqueados} parados\n"
+        saida += "="*60 + "\n"
+
+        # Tabela
+        saida += f"{'PID':<5} | {'NOME':<20} | {'ESTADO':<12} | {'PC':<5}\n"
+        saida += "-" * 60 + "\n"
+
+        for pcb in self.tabela_de_processos.values():
+            estado_str = pcb.estado.value 
+            saida += f"{pcb.pid:<5} | {pcb.nome_programa:<20} | {estado_str:<12} | {pcb.contador_de_programa:<5}\n"
+        
+        saida += "-" * 60 + "\n"
+
+        return saida 
 
 # ================================================================================
 # 5. PONTO DE ENTRADA PRINCIPAL DA SIMULAÇÃO
